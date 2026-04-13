@@ -203,7 +203,7 @@ function Home() {
       const newStatuses = updateAllChpStatuses(chps, newHouses);
       const affectedChp = chps.find(c => c.id === selectedObject.chpId);
       if (affectedChp && newStatuses[affectedChp.id] === 'off') {
-        showNotification('ТЭЦ "${affectedChp.name}" ОТКЛЮЧЕНА! Все дома на ${finalTemp === 95 ? 'максимальной' : 'минимальной'} температуре!', 'error');
+        showNotification(`ТЭЦ "${affectedChp.name}" ОТКЛЮЧЕНА! Все дома на ${finalTemp === 95 ? 'максимальной' : 'минимальной'} температуре!`, 'error');
       } else if (affectedChp && newStatuses[affectedChp.id] === 'working' && chpStatus[affectedChp.id] === 'off') {
         showNotification('ТЭЦ "${affectedChp.name}" восстановлена!', 'success');
       }
