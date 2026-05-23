@@ -1,0 +1,22 @@
+CREATE OR REPLACE FUNCTION public."Топ источников инцидентов"(p_год integer)
+	RETURNS TABLE(
+    	"Название источника" character varying(50),
+    	"Количество инцидентов" bigint
+	)
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+RETURN QUERY
+    SELECT s."Название" AS "Название источника", COUNT(i."ID инцидента") AS "Количество инцидентов"
+    FROM public."Инциденты" i
+    JOIN public."Источник инцидентов" s ON i."ID источника" = s."ID источника"
+    WHERE i."Дата и время создания" >= make_date(p_год, 1, 1)
+    AND i."Дата и время создания" < make_date(p_год + 1, 1, 1)
+    GROUP BY s."ID источника", s."Название"
+    ORDER BY COUNT(i."ID инцидента") DESC
+    LIMIT 5;
+END;
+$BODY$;
+
+SELECT * FROM public."Топ источников инцидентов"(2026);

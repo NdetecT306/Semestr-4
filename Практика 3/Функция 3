@@ -1,0 +1,17 @@
+CREATE OR REPLACE FUNCTION public."Количество инцидентов за период"(
+    p_begin timestamp without time zone,
+    p_end timestamp without time zone)
+	RETURNS integer
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+	RETURN(
+		SELECT COUNT(*)
+    	FROM public."Инциденты"
+    	WHERE "Дата и время создания" BETWEEN p_begin AND p_end
+	);
+END;
+$BODY$;
+
+SELECT public."Количество инцидентов за период"('2026-01-01', '2026-12-31');

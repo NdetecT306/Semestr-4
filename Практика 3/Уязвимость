@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS public."Уязвимость" CASCADE;
+CREATE TABLE IF NOT EXISTS public."Уязвимость"
+(
+    "ID уязвимости" integer NOT NULL,
+    "Тип" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    "Время обнаружения" timestamp without time zone NOT NULL,
+    "Время устранения" timestamp without time zone,
+    "Статус" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Уязвимость_pkey" PRIMARY KEY ("ID уязвимости")
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Уязвимость"
+    OWNER TO postgres;

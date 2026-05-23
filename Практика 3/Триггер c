@@ -1,0 +1,28 @@
+CREATE OR REPLACE FUNCTION public."Проверка на возможность удалить"()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    IF OLD."Текущее состояние" NOT IN ('Закрыт') THEN
+    	RAISE EXCEPTION 'Только завершённые инциденты могут быть удалены.';
+    END IF;
+    RETURN OLD;
+END;
+$BODY$;
+
+DROP TRIGGER IF EXISTS "Удаление особо важных данных" ON public."Инциденты";
+CREATE TRIGGER "Удаление особо важных данных"
+    BEFORE DELETE ON public."Инциденты"
+    FOR EACH ROW
+    EXECUTE FUNCTION public."Проверка на возможность удалить"();
+
+/*
+
+INSERT INTO public."Инциденты" (
+	"ID инцидента","Дата и время создания","Тип","Степень угрозы","Текущее состояние",
+    "Описание","ID объекта","ID сотрудника","ID источника")
+VALUES (306, NOW(), 'Проверочный', 3, 'Открыт', 'Для проверки работы триггера c', 1,1,1);
+DELETE FROM public."Инциденты" WHERE "ID инцидента" = 306;
+SELECT "ID инцидента", "Текущее состояние" FROM public."Инциденты" WHERE "ID инцидента" = 306;
+*/

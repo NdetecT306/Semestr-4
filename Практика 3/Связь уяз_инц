@@ -1,0 +1,20 @@
+DROP TABLE IF EXISTS public."Связь уяз_инц" CASCADE;
+CREATE TABLE IF NOT EXISTS public."Связь уяз_инц"
+(
+	"ID связи" integer NOT NULL, 
+	"ID инцидента" integer NOT NULL,
+	"ID уязвимости" integer NOT NULL,
+	CONSTRAINT "Связь_pkey" PRIMARY KEY ("ID связи"),
+	CONSTRAINT "Связь_fk_инциденты" FOREIGN KEY ("ID инцидента")
+        REFERENCES public."Инциденты" ("ID инцидента") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+	CONSTRAINT "Связь_fk_уязвимость" FOREIGN KEY ("ID уязвимости")
+        REFERENCES public."Уязвимость" ("ID уязвимости") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Связь уяз_инц"
+    OWNER TO postgres; 

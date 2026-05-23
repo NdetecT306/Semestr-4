@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION public."Проверка уровня угрозы"(p_id_инцидента integer)
+	RETURNS boolean
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    RETURN (
+        SELECT CASE
+            WHEN "Степень угрозы" BETWEEN 1 AND 5 THEN TRUE
+            WHEN "Степень угрозы" < 1 OR "Степень угрозы" > 5 THEN FALSE
+            ELSE FALSE 
+        END
+        FROM public."Инциденты"
+        WHERE "ID инцидента" = p_id_инцидента
+    );
+END;
+$BODY$;
+
+SELECT public."Проверка уровня угрозы"(1);

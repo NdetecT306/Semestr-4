@@ -1,0 +1,29 @@
+CREATE OR REPLACE FUNCTION public."Последнее изменение"()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    NEW."Дата и время изменения" = CURRENT_TIMESTAMP(0);
+    RETURN NEW;
+END;
+$BODY$;
+
+DROP TRIGGER IF EXISTS "Редактор времени инцидента" ON public."Инциденты";
+CREATE TRIGGER "Редактор времени инцидента"
+    BEFORE UPDATE ON public."Инциденты"
+    FOR EACH ROW
+    EXECUTE FUNCTION public."Последнее изменение"();
+
+/*
+DELETE FROM public."Инциденты" 
+WHERE "ID инцидента" = 306;
+INSERT INTO public."Инциденты"(
+	"ID инцидента","Дата и время создания","Тип","Степень угрозы","Текущее состояние",
+    "Описание","ID объекта","ID сотрудника","ID источника")
+VALUES (306, '2026-05-01 10:30:00', 'Тестовый', 5, 'Закрыт', 'Тест триггера d', 1,1,1);
+
+SELECT "ID инцидента","Дата и время создания", "Дата и время изменения" FROM public."Инциденты" 
+WHERE "ID инцидента" = 306;
+UPDATE public."Инциденты" SET "Тип" = 'Обновленный' WHERE "ID инцидента" = 306;
+*/

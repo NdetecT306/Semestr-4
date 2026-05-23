@@ -1,0 +1,26 @@
+CREATE OR REPLACE FUNCTION public."ХЭШ"()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    IF LENGTH(NEW."Пароль") != 64 OR NEW."Пароль" ~ '[^a-f0-9]' THEN
+        NEW."Пароль" = encode(sha256(NEW."Пароль"::bytea), 'hex');
+    END IF;
+    RETURN NEW;
+END;
+$BODY$;
+
+DROP TRIGGER IF EXISTS "Хэшнутый триггер" ON public."Сотрудники";
+CREATE TRIGGER "Хэшнутый триггер"
+    BEFORE INSERT OR UPDATE ON public."Сотрудники"
+    FOR EACH ROW
+    EXECUTE FUNCTION public."ХЭШ"();
+
+INSERT INTO public."Сотрудники"(
+	"ID сотрудника","Фамилия","Имя","Отчество","Дата рождения",
+	"Должность","Номер телефона","Электронная почта","Логин","Пароль")
+VALUES (306, 'Бобров', 'Игорь', 'Аркадьевич', '2001-01-01', 
+'Специалист по ничего-не-деланию','8-800-555-35-35', 'bobrdobr@mail.ru', 'SamiLuchiLogin', 'LuchiParol123');
+
+SELECT "Фамилия", "Логин", "Пароль" FROM public."Сотрудники" WHERE "ID сотрудника" = 306;

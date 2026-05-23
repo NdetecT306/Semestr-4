@@ -1,0 +1,19 @@
+DROP TABLE IF EXISTS public."Сотрудники" CASCADE;
+CREATE TABLE IF NOT EXISTS public."Сотрудники"
+(
+    "ID сотрудника" integer NOT NULL,
+    "Фамилия" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    "Имя" character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    "Отчество" character varying(30) COLLATE pg_catalog."default",
+    "Дата рождения" date NOT NULL,
+    "Должность" text COLLATE pg_catalog."default" NOT NULL,
+    "Номер телефона" character varying(15) COLLATE pg_catalog."default" NOT NULL,
+    "Электронная почта" character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    "Логин" character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    "Пароль" character(64) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Сотрудники_pkey" PRIMARY KEY ("ID сотрудника")
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Сотрудники"
+    OWNER TO postgres;

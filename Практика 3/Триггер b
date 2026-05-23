@@ -1,0 +1,32 @@
+CREATE OR REPLACE FUNCTION public."Проверка степени угрозы"()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    IF NEW."Степень угрозы" < 1 OR NEW."Степень угрозы" > 5 THEN
+    RAISE EXCEPTION 'Неверное значение степени угрозы. Не в диапазоне [1, 5].';
+    END IF;
+    RETURN NEW;
+END;
+$BODY$;
+
+DROP TRIGGER IF EXISTS "Корректность степени угрозы" ON public."Инциденты";
+CREATE TRIGGER "Корректность степени угрозы"
+    BEFORE INSERT OR UPDATE ON public."Инциденты"
+    FOR EACH ROW
+    EXECUTE FUNCTION public."Проверка степени угрозы"();
+	
+/*
+UPDATE public."Инциденты" SET "Степень угрозы" = 15 WHERE "ID инцидента" = 306;
+SELECT "Тип","Степень угрозы" FROM public."Инциденты" WHERE "ID инцидента" = 307;
+*/
+
+
+
+
+	
+
+
+
+

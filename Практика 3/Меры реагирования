@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS public."Меры реагирования" CASCADE;
+CREATE TABLE IF NOT EXISTS public."Меры реагирования"
+(
+    "ID меры" integer NOT NULL,
+    "ID уязвимости" integer NOT NULL, 
+    "Название" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    "Дата выполнения" timestamp without time zone NOT NULL,
+    CONSTRAINT "Меры реагирования_pkey" PRIMARY KEY ("ID меры"),
+    CONSTRAINT "Меры реагирования_fk_уязвимость" FOREIGN KEY ("ID уязвимости")
+        REFERENCES public."Уязвимость" ("ID уязвимости") ON DELETE RESTRICT
+		
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Меры реагирования"
+    OWNER TO postgres;

@@ -1,0 +1,23 @@
+CREATE OR REPLACE FUNCTION public."Уязвимости за месяц"(p_год integer, p_месяц integer)
+	RETURNS TABLE(
+		"ID уязвимости" integer, 
+		"Тип уязвимости" character varying(50), 
+		"Количество инцидентов" bigint
+	)
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+RETURN QUERY
+        SELECT v."ID уязвимости", v."Тип" AS "Тип уязвимости", COUNT(i."ID инцидента") AS "Количество инцидентов"
+        FROM public."Связь уяз_инц" sv 
+        JOIN public."Инциденты" i ON sv."ID инцидента" = i."ID инцидента"
+        JOIN public."Уязвимость" v ON sv."ID уязвимости" = v."ID уязвимости"
+        WHERE i."Дата и время создания" >= make_date(p_год, p_месяц, 1)
+        AND i."Дата и время создания" < make_date(p_год, p_месяц, 1) + interval '1 month'
+        GROUP BY v."ID уязвимости", v."Тип"
+        ORDER BY COUNT(i."ID инцидента") DESC;
+END;
+$BODY$;
+
+SELECT * FROM public."Уязвимости за месяц"(2026, 1);

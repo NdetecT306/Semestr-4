@@ -1,0 +1,43 @@
+CREATE OR REPLACE FUNCTION public."Связь с уязвимостями"()
+	RETURNS trigger
+	LANGUAGE plpgsql
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+    stat character varying(50);
+BEGIN
+    SELECT "Статус" INTO stat
+    FROM public."Уязвимость"
+    WHERE "ID уязвимости" = NEW."ID уязвимости";
+    IF stat = 'Исправлена' THEN
+        UPDATE public."Уязвимость" 
+        SET "Статус" = 'Повторно открыта',
+            "Время устранения" = NULL
+        WHERE "ID уязвимости" = NEW."ID уязвимости";
+        RAISE NOTICE 'Уязвимость % переведена из статуса "Исправлена" в "Повторно открыта"', NEW."ID уязвимости";
+    END IF;
+    RETURN NEW;
+END;
+$BODY$;
+
+DROP TRIGGER IF EXISTS "Контроль связи с уязвимостями" ON public."Связь уяз_инц";
+CREATE TRIGGER "Контроль связи с уязвимостями"
+    BEFORE INSERT ON public."Связь уяз_инц"
+    FOR EACH ROW
+    EXECUTE FUNCTION public."Связь с уязвимостями"();
+
+/*
+INSERT INTO public."Уязвимость" ("ID уязвимости", "Тип", "Время обнаружения", "Время устранения", "Статус") 
+VALUES (306, 'Новая исправленная уязвимость', NOW(), NOW(), 'Исправлена');
+
+SELECT "Тип", "Статус" FROM public."Уязвимость" WHERE "ID уязвимости" = 306;
+
+INSERT INTO public."Инциденты" (
+    "ID инцидента", "Дата и время создания", "Тип", "Степень угрозы", 
+    "Текущее состояние", "Описание", "ID объекта", "ID сотрудника", "ID источника") 
+VALUES (603, NOW(), 'Тестовый для новой уязвимости', 3, 'Закрыт', 'Связь с уязвимостью 306', 1, 1, 1);
+
+INSERT INTO public."Связь уяз_инц" ("ID связи", "ID инцидента", "ID уязвимости") 
+VALUES (306, 603, 306);
+
+*/	

@@ -1,0 +1,31 @@
+DROP TABLE IF EXISTS public."Инциденты" CASCADE;
+CREATE TABLE IF NOT EXISTS public."Инциденты"
+(
+    "ID инцидента" integer NOT NULL,
+    "Дата и время создания" timestamp without time zone NOT NULL,
+    "Тип" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    "Степень угрозы" integer NOT NULL,
+    "Текущее состояние" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    "Описание" text COLLATE pg_catalog."default",
+    "ID объекта" integer NOT NULL,
+    "ID сотрудника" integer NOT NULL,
+    "ID источника" integer NOT NULL,
+    "Дата и время изменения" timestamp without time zone,
+    CONSTRAINT "Инциденты_pkey" PRIMARY KEY ("ID инцидента"),
+    CONSTRAINT "Инциденты_fk_объект" FOREIGN KEY ("ID объекта")
+        REFERENCES public."Объект КИ" ("ID объекта") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "Инциденты_fk_сотрудник" FOREIGN KEY ("ID сотрудника")
+        REFERENCES public."Сотрудники" ("ID сотрудника") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "Инциденты_fk_источник" FOREIGN KEY ("ID источника")
+        REFERENCES public."Источник инцидентов" ("ID источника") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Инциденты"
+    OWNER TO postgres;

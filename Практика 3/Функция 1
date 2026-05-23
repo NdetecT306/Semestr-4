@@ -1,0 +1,18 @@
+CREATE OR REPLACE FUNCTION public."Среднее время реагирования"(p_id_сотрудника integer)
+	RETURNS numeric
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+	RETURN(
+		SELECT AVG(EXTRACT(EPOCH FROM (v."Время устранения" - i."Дата и время создания")) / 3600)::numeric(10,2)
+    	FROM public."Инциденты" i
+    	JOIN public."Связь уяз_инц" sv ON i."ID инцидента" = sv."ID инцидента"
+    	JOIN public."Уязвимость" v ON sv."ID уязвимости" = v."ID уязвимости"
+    	WHERE i."ID сотрудника" = p_id_сотрудника
+    	AND v."Время устранения" IS NOT NULL
+	);
+END;
+$BODY$;
+
+SELECT public."Среднее время реагирования"(1);

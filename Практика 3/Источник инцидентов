@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS public."Источник инцидентов" CASCADE;
+CREATE TABLE IF NOT EXISTS public."Источник инцидентов"
+(
+    "ID источника" integer NOT NULL,
+	"Название" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    "Локация" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Источник_pkey" PRIMARY KEY ("ID источника")
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Источник инцидентов"
+    OWNER TO postgres; 

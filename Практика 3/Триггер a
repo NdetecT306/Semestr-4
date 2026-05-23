@@ -1,0 +1,55 @@
+DROP TABLE IF EXISTS public."Инциденты_Лог" CASCADE;
+CREATE TABLE IF NOT EXISTS public."Инциденты_Лог" (
+    "ID лога" SERIAL NOT NULL,
+    "ID инцидента" integer NOT NULL,
+    "Старые данные" text,                       
+    "Новые данные" text,                         
+    "Пользователь" character varying(50) NOT NULL DEFAULT current_user,
+    "Дата и время" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Инциденты_Лог_pkey" PRIMARY KEY ("ID лога"),
+	CONSTRAINT "Инциденты_Лог_fk_инциденты" FOREIGN KEY ("ID инцидента")
+        REFERENCES public."Инциденты" ("ID инцидента") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Инциденты_Лог"
+    OWNER TO postgres;
+
+CREATE OR REPLACE FUNCTION public."Аудит"()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO public."Инциденты_Лог" ("ID инцидента", "Новые данные", "Пользователь",  "Дата и время") 
+		VALUES (NEW."ID инцидента",row_to_json(NEW)::text,current_user,CURRENT_TIMESTAMP(0));
+        RETURN NEW;
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO public."Инциденты_Лог" ("ID инцидента", "Старые данные", 
+		"Новые данные", "Пользователь", "Дата и время") 
+		VALUES (NEW."ID инцидента",row_to_json(OLD)::text,row_to_json(NEW)::text,current_user,CURRENT_TIMESTAMP(0));
+        RETURN NEW;
+    END IF;
+    RETURN NULL;
+END;
+$BODY$;
+
+DROP TRIGGER IF EXISTS "Триггер аудита" ON public."Инциденты";
+CREATE TRIGGER "Триггер аудита"
+    AFTER INSERT OR UPDATE ON public."Инциденты"
+    FOR EACH ROW
+    EXECUTE FUNCTION public."Аудит"();
+
+/*
+INSERT INTO public."Инциденты"(
+ 	"ID инцидента","Дата и время создания","Тип","Степень угрозы","Текущее состояние",
+    "Описание","ID объекта","ID сотрудника","ID источника"
+)
+VALUES(306, '2015-02-02', 'пРОВЕРОЧНЫЙ', 3, 'Закрыт', 'Тестирование триггера a', 1,1,1);
+UPDATE public."Инциденты" SET "Степень угрозы" = 4  WHERE "ID инцидента"=306;
+
+SELECT * FROM public."Инциденты_Лог" WHERE "ID инцидента"=306;
+*/
